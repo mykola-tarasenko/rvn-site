@@ -546,3 +546,69 @@ img.zoomable{cursor:zoom-in}
 /* фіксоване меню: backdrop-filter шапки робить її контейнером для position:fixed, тож при відкритому меню прибираємо його */
 html.menu-open .site-header{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--cream)}
 .numbers-1{grid-template-columns:minmax(0,380px);justify-content:center;text-align:center}
+
+/* ---------- часті питання */
+.faq{max-width:860px}
+.faq-item{background:var(--paper);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:14px;transition:box-shadow .2s}
+.faq-item[open]{box-shadow:var(--sh-h)}
+.faq-item summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:20px 24px;border-radius:var(--r)}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary h2{font-size:clamp(1.05rem,1.6vw,1.2rem);margin:0;letter-spacing:-.01em;font-weight:800;line-height:1.3}
+.faq-item summary::after{content:"+";flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--red-soft);color:var(--red);font-weight:800;font-size:1.3rem;transition:transform .2s}
+.faq-item[open] summary::after{transform:rotate(45deg)}
+.faq-item summary:hover h2{color:var(--red)}
+.faq-a{padding:0 24px 20px;color:var(--muted)}
+.faq-a p{margin:0;max-width:68ch}
+.faq-a a,.note a,.mentions a{color:var(--red);font-weight:600}
+.faq-more{margin-top:34px;text-align:center}
+.faq-more .btn-row{justify-content:center}
+
+/* ---------- для медія */
+.press-text{background:var(--paper);border-radius:var(--r);box-shadow:var(--sh);padding:20px 24px;margin-bottom:16px}
+.press-text-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.press-text h3{font-size:1.05rem;margin:0}
+.press-text p{margin:0;color:var(--muted)}
+.facts{margin:0 0 22px;display:grid;gap:0;background:var(--paper);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.facts div{display:grid;grid-template-columns:9em 1fr;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line)}
+.facts div:last-child{border-bottom:0}
+.facts dt{font-weight:700;color:var(--muted);font-size:.92rem}
+.facts dd{margin:0;font-weight:600}
+.logo-card{display:flex;align-items:center;gap:20px;background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:18px 22px}
+.logo-card img{width:96px;height:auto}
+.logo-card h3{margin:0 0 2px;font-size:1.05rem}
+.logo-card p{margin:0 0 10px;color:var(--muted);font-size:.92rem}
+.mentions li{display:flex;flex-direction:column;gap:2px;padding:14px 0;border-bottom:1px solid var(--line)}
+.mentions span{font-size:.88rem;color:var(--muted)}
+.contact-mail.light a{color:var(--ink);background:#fff;box-shadow:var(--sh)}
+.contact-mail.light a:hover{background:var(--red-soft)}
+
+/* ---------- календар пам’яти */
+.memory{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1100px;margin:0 auto}
+.mem{display:flex;gap:16px;align-items:flex-start;background:var(--paper);border-radius:var(--r);box-shadow:var(--sh);padding:18px 20px;position:relative}
+.mem-date{flex:none;width:62px;text-align:center;margin:0;background:#fff;border-radius:14px;padding:8px 0 7px;box-shadow:inset 0 0 0 1.5px var(--line)}
+.mem-d{display:block;font-size:1.6rem;font-weight:900;line-height:1;color:var(--red)}
+.mem-m{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-top:3px}
+.mem-body h3{font-size:1.02rem;margin:0 0 4px;line-height:1.3}
+.mem-body h3 a{text-decoration:none}
+.mem-body h3 a:hover{color:var(--red);text-decoration:underline}
+.mem-body p{margin:0;font-size:.9rem;color:var(--muted);line-height:1.45}
+.mem-next{background:var(--red-sec);color:#fff}
+.mem-next .mem-body p{color:rgba(255,255,255,.88)}
+.mem-next .mem-body h3 a{color:#fff}
+.mem-badge{display:inline-block;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;background:#fff;color:var(--red);border-radius:999px;padding:3px 9px;margin-bottom:6px}
+@media (max-width:1040px){.memory{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.memory{grid-template-columns:1fr}.facts div{grid-template-columns:1fr;gap:2px}.logo-card{flex-direction:column;text-align:center}}
+
+/* ---------- друк статей */
+@media print{
+  .site-header,.site-footer,.skip,.to-top,.read-progress,.share,.post-nav,.toc,.carousel .car-ctrl,.post-body .btn-row,.crumbs,.sec.paper,.toast{display:none!important}
+  body{background:#fff;color:#000;font-size:12pt}
+  .post-head{background:none;padding:0}
+  .post-body{padding:0;max-width:none}
+  .post-body a{color:#000}
+  .post-body a[href^="http"]::after{content:" (" attr(href) ")";font-size:.8em;color:#555;word-break:break-all}
+  .car-track{display:block;overflow:visible}
+  .car-slide{display:inline-block;width:30%;margin:0 1% 8px 0;box-shadow:none;break-inside:avoid}
+  img{break-inside:avoid}
+  .credits{box-shadow:none;border:1px solid #ccc}
+}

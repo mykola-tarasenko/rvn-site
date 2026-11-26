@@ -152,6 +152,24 @@
     });
   }
 
+  /* ---------- календар пам’яти: найближча дата за сьогоднішнім днем */
+  var mem = d.querySelector('.memory');
+  if (mem) {
+    var now = new Date(), md = ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);
+    var lis = Array.prototype.slice.call(mem.children);
+    lis.sort(function (a, b) {
+      var x = a.getAttribute('data-md'), y = b.getAttribute('data-md');
+      return ((x < md) - (y < md)) || (x < y ? -1 : x > y ? 1 : 0);
+    });
+    lis.forEach(function (li, i) {
+      li.classList.toggle('mem-next', i === 0);
+      var b = li.querySelector('.mem-badge');
+      if (i === 0 && !b) { b = d.createElement('span'); b.className = 'mem-badge'; li.querySelector('.mem-body').prepend(b); }
+      if (b) { if (i === 0) b.textContent = li.getAttribute('data-md') === md ? 'Сьогодні' : 'Найближча'; else b.remove(); }
+      mem.appendChild(li);
+    });
+  }
+
   /* ---------- блоґ: рубрики й пошук */
   var filters = d.querySelector('.blog-filters');
   if (filters) {

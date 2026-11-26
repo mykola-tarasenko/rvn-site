@@ -408,7 +408,7 @@ def footer():
     </div>
     <nav class="foot-nav" aria-label="Розділи сайту">
       <p class="foot-h">Розділи</p>
-      <ul>{links}<li><a href="/pidtrymaty">Підтримати</a></li><li><a href="/rss.xml">RSS блоґу</a></li></ul>
+      <ul>{links}<li><a href="/pidtrymaty">Підтримати</a></li><li><a href="/pytannia">Часті питання</a></li><li><a href="/dlia-media">Для медія</a></li><li><a href="/rss.xml">RSS блоґу</a></li></ul>
     </nav>
     <div class="foot-contact">
       <p class="foot-h">Зв'язатися з нами</p>
@@ -416,7 +416,7 @@ def footer():
       <p>{btn('Підтримати', '/pidtrymaty', 'red')}</p>
     </div>
   </div>
-  <div class="foot-bottom"><div class="wrap foot-bottom-in"><p>© {YEAR} ГО «{BRAND}»</p><p><a href="/privacy">Політика конфіденційности</a></p></div></div>
+  <div class="foot-bottom"><div class="wrap foot-bottom-in"><p>© {YEAR} ГО «{BRAND}» · ЄДРПОУ {C.EDRPOU}</p><p><a href="/privacy">Політика конфіденційности</a></p></div></div>
 </footer>'''
 
 
@@ -446,6 +446,8 @@ def page(path, title, desc, body, current=None, og=None, ld=None, noindex=False,
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#fcf0e0">
 <link rel="icon" href="/img/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap">
@@ -661,6 +663,9 @@ def build_events():
 <section class="sec paper">
   <div class="wrap">{sec_head('Архів подій', 'Що ми встигли зробити останнім часом')}{archive()}</div>
 </section>
+<section class="sec cream" id="kalendar">
+  <div class="wrap">{sec_head('Календар пам’яти', 'Дати, які ми відзначаємо щороку. Найближча — першою.')}{memory_calendar()}</div>
+</section>
 <section class="sec cream">
   <div class="wrap">{sec_head('Звіти в блоґу')}{card(strokata, 'h3', False, True)}</div>
 </section>'''
@@ -689,7 +694,8 @@ def build_contacts():
   </div>
 </section>
 <section class="sec cream">
-  <div class="wrap">{sec_head('Як долучитися')}<ul class="actions">{act}</ul></div>
+  <div class="wrap">{sec_head('Як долучитися')}<ul class="actions">{act}</ul>
+  <p class="center note">Маєте питання? Можливо, відповідь уже є в <a href="/pytannia">частих питаннях</a>. Журналістам — <a href="/dlia-media">сторінка для медія</a>.</p></div>
 </section>
 <section class="sec paper">
   <div class="wrap">{sec_head('Збірка світлин', 'Моменти, що відображають дух нашої Одеси')}<ul class="photo-grid">{g}</ul></div>
@@ -995,6 +1001,83 @@ def archive():
     return out
 
 
+
+def build_faq():
+    P = '/pytannia'
+    items = ''.join(f'<details class="faq-item"{" open" if i == 0 else ""}><summary><h2>{e(q)}</h2></summary><div class="faq-a"><p>{a}</p></div></details>'
+                    for i, (q, a) in enumerate(C.FAQ))
+    body = f"""<section class="page-head blue">
+  <div class="wrap"><h1>Часті питання</h1><p class="lead">Коротко про РВН, мовні інспекції, вступ до команди й підтримку.</p></div>
+</section>
+<section class="sec cream">
+  <div class="wrap faq">{items}
+  <div class="faq-more"><p><strong>Не знайшли відповіді?</strong> Напишіть нам — відповімо.</p>
+  <p class="btn-row">{btn('Написати листа', 'mailto:' + EMAIL, 'red')}{btn('Контакти', '/contacts', 'outline')}</p></div></div>
+</section>"""
+    ld = {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [
+        {'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': re.sub('<[^>]+>', '', a)}} for q, a in C.FAQ]}
+    return page(P, 'Часті питання', 'Відповіді на часті питання про ГО «Робимо вам нерви»: мовні інспекції, скарги, вступ до команди, підтримка й звіти.', body, P, ld=ld)
+
+
+def build_press():
+    P = '/dlia-media'
+    logo_png = '/media/rvn-logo.png'
+    facts = ''.join(f'<div><dt>{e(k)}</dt><dd>{e(v)}</dd></div>' for k, v in C.PRESS_FACTS)
+    d = dump['/']['secs'][6]['items']
+    titles = sorted([it for it in d if it['k'] == 't' and it['tag'] == 'h3'], key=lambda it: it['rect'][0])
+    links = sorted([it for it in d if it['k'] == 'btn'], key=lambda it: it['rect'][0])
+    def host(u):
+        return re.sub(r'^https?://(www\.)?', '', u).split('/')[0]
+    mentions = ''.join(f'<li><a href="{e(b["href"])}" rel="noopener" target="_blank">{e(run_text(t))}</a><span>{e(host(b["href"]))}</span></li>'
+                       for t, b in zip(titles, links))
+    mentions += '<li><a href="/podiaka-upovnovazhenoi">Подяка від Уповноваженої із захисту державної мови</a><span>жовтень 2026</span></li>'
+    def copyblock(title, text):
+        return (f'<div class="press-text"><div class="press-text-head"><h3>{e(title)}</h3>'
+                f'<button type="button" class="btn btn-sm btn-outline" data-copy="{e(text)}" data-copied="Текст скопійовано" hidden>Копіювати</button></div>'
+                f'<p>{e(text)}</p></div>')
+    body = f"""<section class="page-head red">
+  <div class="wrap"><h1>Для медія</h1><p class="lead">Довідка про організацію, логотип, ключові цифри й контакти для журналістів.</p>
+  <p class="btn-row">{btn('Написати нам', 'mailto:' + EMAIL, 'cream', True)}</p></div>
+</section>
+<section class="sec cream">
+  <div class="wrap two press-top">
+    <div><h2 class="h-red">Про організацію</h2>{copyblock('Одним реченням', C.PRESS_SHORT)}{copyblock('Розгорнуто', C.PRESS_LONG)}</div>
+    <div><h2 class="h-red">Ключові факти</h2><dl class="facts">{facts}</dl>
+      <div class="logo-card"><img src="{logo_png}" width="160" height="163" alt="Логотип ГО «Робимо вам нерви»" loading="lazy">
+      <div><h3>Логотип</h3><p>PNG з прозорим тлом.</p><a class="btn btn-sm btn-dark" href="{logo_png}" download="rvn-logo.png">Завантажити</a></div></div>
+    </div>
+  </div>
+</section>
+<section class="sec red">
+  <div class="wrap">{sec_head('Цифри', 'Чотири роки діяльности, дані на ' + C.AS_OF)}{numbers(C.NUMBERS)}</div>
+</section>
+<section class="sec paper">
+  <div class="wrap two">
+    <div><h2 class="h-red">Про нас у медія</h2><ul class="mentions">{mentions}</ul></div>
+    <div><h2 class="h-red">Контакти для медія</h2>
+      <p class="contact-mail light"><a href="mailto:{EMAIL}">{icon('mail', 22)}<span>{EMAIL}</span></a></p>
+      <p>Коментарі, інтерв’ю, світлини з подій — пишіть на пошту або в соцмережі.</p>{socials('socials socials-dark', 22)}</div>
+  </div>
+</section>"""
+    return page(P, 'Для медія', 'Медіякит ГО «Робимо вам нерви»: коротка довідка про організацію, ключові факти й цифри, логотип і контакти для журналістів.', body, P)
+
+
+def memory_calendar():
+    today = datetime.date.today()
+    def nxt(m, d):
+        y = today.year if (m, d) >= (today.month, today.day) else today.year + 1
+        return datetime.date(y, m, d)
+    items = sorted(C.MEMORY_DATES, key=lambda x: nxt(x[0], x[1]))
+    lis = ''
+    for i, (m, d, t, desc, link) in enumerate(items):
+        title = f'<a href="{link}">{e(t)}</a>' if link else e(t)
+        soon = ' mem-next' if i == 0 else ''
+        badge = '<span class="mem-badge">Найближча</span>' if i == 0 else ''
+        lis += (f'<li class="mem{soon}" data-md="{m:02d}-{d:02d}"><p class="mem-date"><span class="mem-d">{d}</span><span class="mem-m">{MONTHS[m - 1]}</span></p>'
+                f'<div class="mem-body">{badge}<h3>{title}</h3>{f"<p>{e(desc)}</p>" if desc else ""}</div></li>')
+    return f'<ol class="memory">{lis}</ol>'
+
+
 def build_privacy():
     lines = (SRC / 'policy.txt').read_text(encoding='utf-8').splitlines()
     out, table, lst = [], [], []
@@ -1074,9 +1157,24 @@ def main():
         if not (DIST / 'media' / v.name).exists():
             shutil.copy(v, DIST / 'media' / v.name)
     fav = _open('logo-1-SvkvHc1uyi0uawRf.png'); fav.thumbnail((96, 96)); fav.save(IMG_OUT / 'favicon.png')
+    logo = _open('logo-1-SvkvHc1uyi0uawRf.png').convert('RGBA')
+    (DIST / 'media').mkdir(exist_ok=True)
+    logo.save(DIST / 'media' / 'rvn-logo.png')
+    for size, name in ((180, 'apple-touch-icon.png'), (192, 'icon-192.png'), (512, 'icon-512.png')):
+        bg = Image.new('RGBA', (size, size), (252, 240, 224, 255))
+        lg = logo.copy(); lg.thumbnail((int(size * .78), int(size * .78)), Image.LANCZOS)
+        bg.alpha_composite(lg, ((size - lg.width) // 2, (size - lg.height) // 2))
+        bg.convert('RGB').save(IMG_OUT / name)
+    start = (BASE or '') + '/'
+    (DIST / 'site.webmanifest').write_text(json.dumps({
+        'name': f'ГО «{BRAND}»', 'short_name': BRAND_SHORT, 'lang': 'uk', 'start_url': start, 'scope': start,
+        'display': 'standalone', 'background_color': '#fcf0e0', 'theme_color': '#dd2923',
+        'icons': [{'src': f'{BASE}/img/icon-192.png', 'sizes': '192x192', 'type': 'image/png'},
+                  {'src': f'{BASE}/img/icon-512.png', 'sizes': '512x512', 'type': 'image/png'}]}, ensure_ascii=False), encoding='utf-8')
     pages = {'/': build_home(), '/blog': build_blog(), '/movniinspektsii': build_inspections(),
              '/podii': build_events(), '/contacts': build_contacts(), '/pro-nas': build_about(),
-             '/doluchytysia': build_join(), '/pidtrymaty': build_support(), '/privacy': build_privacy()}
+             '/doluchytysia': build_join(), '/pidtrymaty': build_support(), '/pytannia': build_faq(),
+             '/dlia-media': build_press(), '/privacy': build_privacy()}
     for p in posts:
         pages[p.path] = build_post(p)
     for path, content in pages.items():
