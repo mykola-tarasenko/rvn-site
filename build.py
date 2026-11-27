@@ -416,6 +416,7 @@ def footer():
       <p>{btn('Підтримати', '/pidtrymaty', 'red')}</p>
     </div>
   </div>
+  <p class="foot-word" aria-hidden="true">Робимо вам нерви</p>
   <div class="foot-bottom"><div class="wrap foot-bottom-in"><p>© {YEAR} ГО «{BRAND}» · ЄДРПОУ {C.EDRPOU}</p><p><a href="/privacy">Політика конфіденційности</a></p></div></div>
 </footer>'''
 
@@ -514,14 +515,16 @@ def build_home():
                 f'width="{hero[2][0]}" height="{hero[2][1]}" alt="{e(HERO_ALT)}" loading="eager" fetchpriority="high" decoding="async">')
     join = find_btn('/', 'Вступити в ГО')
     lead = find_text('/', 'Долучайтеся до підтримки')
+    ticker = ''.join(f'<span>{e(t)}</span>' for t in C.SLOGANS * 2)
     body = f'''<section class="hero">{hero_img}
   <div class="wrap hero-in">
     <p class="eyebrow">ГО «{BRAND}» · Одеса</p>
-    <h1>Відновлюємо українську самобутність Одеси</h1>
+    <h1>Відновлюємо українську самобутність <span class="hl">Одеси</span></h1>
     <p class="hero-lead">{e(lead)}</p>
     <p class="btn-row">{btn('Підтримати', '/pidtrymaty', 'red', True)}{btn('Долучитися', '/doluchytysia', 'ghost', True)}</p>
   </div>
 </section>
+<div class="ticker" aria-hidden="true"><div class="ticker-track">{ticker}{ticker}</div></div>
 <section class="quick" aria-label="Швидкі дії">
   <div class="wrap"><ul class="quick-list">{quick_actions()}</ul></div>
 </section>
